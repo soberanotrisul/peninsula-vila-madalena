@@ -425,8 +425,49 @@ src="https://www.facebook.com/tr?id=1939651659965505&ev=PageView&noscript=1"/>
       <button class="btn-voltar" onclick="goSt(1)">← voltar</button>
     </div>
 
-    <!-- STEP 3 · CONFIRMAÇÃO -->
+
+    <!-- STEP 3 · FAIXA DE INVESTIMENTO -->
     <div class="step" id="st3">
+      <div class="step-eyebrow">faixa de investimento</div>
+      <div class="step-title">Qual faixa<br>faz sentido <em>para você?</em></div>
+
+      <div class="perfis">
+        <div class="perfil-opt" onclick="selInvestimento(this,'Até R$ 3 milhões')">
+          <div class="p-dot"></div>
+          <div class="p-info">
+            <div class="p-nome">Até R$ 3 milhões</div>
+            <div class="p-desc">154m² · 3 suítes · 2 vagas</div>
+          </div>
+        </div>
+        <div class="perfil-opt" onclick="selInvestimento(this,'R$ 3 a 5 milhões')">
+          <div class="p-dot"></div>
+          <div class="p-info">
+            <div class="p-nome">R$ 3 a 5 milhões</div>
+            <div class="p-desc">193m² · 4 suítes · 3 vagas</div>
+          </div>
+        </div>
+        <div class="perfil-opt" onclick="selInvestimento(this,'Acima de R$ 7 milhões')">
+          <div class="p-dot"></div>
+          <div class="p-info">
+            <div class="p-nome">Acima de R$ 7 milhões</div>
+            <div class="p-desc">Cobertura · 300m² · exclusiva</div>
+          </div>
+        </div>
+        <div class="perfil-opt" onclick="selInvestimento(this,'Quero avaliar as opções')">
+          <div class="p-dot"></div>
+          <div class="p-info">
+            <div class="p-nome">Quero avaliar as opções</div>
+            <div class="p-desc">Apresente todas as possibilidades</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-prox" id="btnSt3" onclick="goSt(4)" disabled>Continuar →</button>
+      <button class="btn-voltar" onclick="goSt(2)">← voltar</button>
+    </div>
+
+    <!-- STEP 4 · CONFIRMAÇÃO -->
+    <div class="step" id="st4">
       <div class="step-eyebrow">confirmação</div>
       <div class="step-title">Tudo <em>certo?</em></div>
       <div class="confirm-box">
@@ -435,6 +476,7 @@ src="https://www.facebook.com/tr?id=1939651659965505&ev=PageView&noscript=1"/>
         <div class="c-row"><div class="c-key">WhatsApp</div><div class="c-val" id="cTel">—</div></div>
         <div class="c-row"><div class="c-key">E-mail</div><div class="c-val" id="cEmail">—</div></div>
         <div class="c-row"><div class="c-key">Interesse</div><div class="c-val" id="cPerfil">—</div></div>
+        <div class="c-row"><div class="c-key">Investimento</div><div class="c-val" id="cInvestimento">—</div></div>
       </div>
       <button class="btn-prox" onclick="enviar()">Quero conhecer o projeto →</button>
       <button class="btn-voltar" onclick="goSt(2)">← voltar</button>
@@ -456,7 +498,7 @@ src="https://www.facebook.com/tr?id=1939651659965505&ev=PageView&noscript=1"/>
 </footer>
 
 <script>
-var dados = { nome:'', tel:'', email:'', perfil:'' };
+var dados = { nome:'', tel:'', email:'', perfil:'', investimento:'' };
 
 document.getElementById('fTel').addEventListener('input', function(e){
   var v = e.target.value.replace(/\D/g,'');
@@ -474,6 +516,20 @@ function chk1(){
   var e = document.getElementById('fEmail').value.trim();
   var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
   document.getElementById('btnSt1').disabled = !(n.length > 1 && t.length >= 10 && emailOk);
+}
+
+function selInvestimento(el, investimento){
+  document.querySelectorAll('#st3 .perfil-opt').forEach(function(o){ o.classList.remove('sel'); });
+  el.classList.add('sel');
+  dados.investimento = investimento;
+  document.getElementById('btnSt3').disabled = false;
+  fbq('trackCustom', 'SelecionouFaixaInvestimento', {
+    content_name:   investimento,
+    faixa_slug:     investimento.replace(/[^a-z0-9]/gi,'_').toLowerCase(),
+    tipologia:      dados.perfil,
+    step:           3,
+    projeto:        'Península Vila Madalena'
+  });
 }
 
 function selPerfil(el, perfil){
@@ -506,16 +562,17 @@ function goSt(n){
   if(n === 3){
     fbq('trackCustom', 'SelecionouPerfil', { content_name: 'Step2 Completo', perfil: dados.perfil, projeto: 'Península Vila Madalena' });
   }
-  if(n === 3){
-    document.getElementById('cNome').textContent  = dados.nome;
-    document.getElementById('cTel').textContent   = dados.tel;
-    document.getElementById('cEmail').textContent = dados.email;
-    document.getElementById('cPerfil').innerHTML  = '<em>' + dados.perfil + '</em>';
+  if(n === 4){
+    document.getElementById('cNome').textContent       = dados.nome;
+    document.getElementById('cTel').textContent        = dados.tel;
+    document.getElementById('cEmail').textContent      = dados.email;
+    document.getElementById('cPerfil').innerHTML       = '<em>' + dados.perfil + '</em>';
+    document.getElementById('cInvestimento').innerHTML = '<em>' + dados.investimento + '</em>';
   }
   document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
   document.getElementById('st'+n).classList.add('active');
-  var lbls = ['','Passo 1 de 3','Passo 2 de 3','Passo 3 de 3'];
-  var pcts = ['','33%','66%','99%'];
+  var lbls = ['','Passo 1 de 4','Passo 2 de 4','Passo 3 de 4','Passo 4 de 4'];
+  var pcts = ['','25%','50%','75%','99%'];
   document.getElementById('stepLbl').textContent  = lbls[n];
   document.getElementById('stepPct').textContent  = pcts[n];
   document.getElementById('progFill').style.width = pcts[n];
@@ -531,6 +588,7 @@ function enviar(){
   var payload = {
     nome: dados.nome, tel: dados.tel, email: dados.email,
     perfil: dados.perfil,
+    investimento: dados.investimento,
     projeto: 'PENÍNSULA · Vila Madalena',
     data: new Date().toLocaleString('pt-BR')
   };
