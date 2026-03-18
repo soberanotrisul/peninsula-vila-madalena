@@ -207,6 +207,24 @@ footer { background:#020405; border-top:1px solid rgba(140,171,114,.08); padding
 .footer-nome { font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:5px; color:var(--g); text-transform:uppercase; opacity:.55; }
 .footer-sub { font-size:8px; letter-spacing:2px; color:var(--ow3); text-transform:uppercase; opacity:.5; }
 </style>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1939651659965505');
+fbq('track', 'PageView');
+</script>
+<noscript>
+<img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1939651659965505&ev=PageView&noscript=1"/>
+</noscript>
+<!-- End Meta Pixel -->
 </head>
 <body>
 
@@ -225,7 +243,7 @@ footer { background:#020405; border-top:1px solid rgba(140,171,114,.08); padding
     <em>Quem visita agora carrega algo<br>que os outros não terão.</em><br>
     A janela fecha quando estiver pronto.
   </p>
-  <a href="#formulario" class="hero-cta">Quero conhecer o projeto →</a>
+  <a href="#formulario" class="hero-cta" onclick="fbq('track','InitiateCheckout',{content_name:'CTA Hero Península Vila Madalena'})">Quero conhecer o projeto →</a>
   <div class="hero-scroll">role</div>
 </section>
 
@@ -463,6 +481,19 @@ function selPerfil(el, perfil){
   el.classList.add('sel');
   dados.perfil = perfil;
   document.getElementById('btnSt2').disabled = false;
+  var perfilSlug = {
+    '154m² — 3 suítes / 2 vagas': '154m2',
+    '193m² — 4 suítes / 3 vagas': '193m2',
+    'Cobertura 300m² — exclusiva':      'cobertura',
+    'Quero conhecer todas as opções':   'todas'
+  }[perfil] || 'outro';
+  fbq('trackCustom', 'SelecionouTipologia', {
+    content_name:     perfil,
+    content_category: 'Tipologia Imóvel',
+    tipologia_slug:   perfilSlug,
+    step:             2,
+    projeto:          'Península Vila Madalena'
+  });
 }
 
 function goSt(n){
@@ -470,6 +501,10 @@ function goSt(n){
     dados.nome  = document.getElementById('fNome').value.trim();
     dados.tel   = document.getElementById('fTel').value.trim();
     dados.email = document.getElementById('fEmail').value.trim();
+    fbq('trackCustom', 'PreencheuDados', { content_name: 'Step1 Completo', projeto: 'Península Vila Madalena' });
+  }
+  if(n === 3){
+    fbq('trackCustom', 'SelecionouPerfil', { content_name: 'Step2 Completo', perfil: dados.perfil, projeto: 'Península Vila Madalena' });
   }
   if(n === 3){
     document.getElementById('cNome').textContent  = dados.nome;
@@ -502,12 +537,39 @@ function enviar(){
   fetch(SHEETS_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) })
   .catch(function(){})
   .finally(function(){
+    fbq('track', 'Lead', {
+      content_name: 'Península Vila Madalena',
+      content_category: 'Imovel Alto Padrao',
+      value: 0,
+      currency: 'BRL'
+    });
     document.querySelector('.form-progress').style.display = 'none';
     document.querySelectorAll('.step').forEach(function(s){ s.style.display='none'; });
     document.getElementById('successWrap').classList.add('active');
     document.getElementById('formulario').scrollIntoView({behavior:'smooth',block:'start'});
   });
 }
+
+(function(){
+  var sec = document.getElementById('formulario');
+  if(!sec) return;
+  var fired = false;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting && !fired){
+        fired = true;
+        fbq('track', 'ViewContent', {
+          content_name:     'Formulario Península Vila Madalena',
+          content_category: 'Imovel Alto Padrao',
+          content_ids:      ['peninsula-vila-madalena'],
+          content_type:     'product'
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  obs.observe(sec);
+})();
+
 </script>
 </body>
 </html>
